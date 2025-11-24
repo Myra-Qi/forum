@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论坛体小说制作工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .post-form, .post-card, .reply-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        body.dark-mode .post-form,
+        body.dark-mode .post-card,
+        body.dark-mode .reply-form {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        body.dark-mode h2 {
+            color: #e0e0e0;
+            border-color: #444;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            transition: color 0.3s;
+        }
+        body.dark-mode label {
+            color: #b0b0b0;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            color: #333;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+        body.dark-mode input,
+        body.dark-mode textarea,
+        body.dark-mode select {
+            background-color: #3d3d3d;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        body.dark-mode input::placeholder,
+        body.dark-mode textarea::placeholder {
+            color: #888;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3182ce;
+        }
+        body.dark-mode button {
+            background-color: #3182ce;
+        }
+        body.dark-mode button:hover {
+            background-color: #2b6cb0;
+        }
+        .post-info {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        body.dark-mode .post-info {
+            color: #777;
+        }
+        .post-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        body.dark-mode .post-title {
+            color: #e0e0e0;
+        }
+        .post-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            transition: color 0.3s;
+        }
+        body.dark-mode .post-content {
+            color: #d0d0d0;
+        }
+        .reply-item {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        body.dark-mode .reply-item {
+            background-color: #333;
+        }
+        .reply-author {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
+        }
+        body.dark-mode .reply-author {
+            color: #e0e0e0;
+        }
+        .author-tag {
+            background-color: #e53e3e;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: normal;
+        }
+        .floor-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #4299e1;
+            font-size: 12px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        body.dark-mode .floor-tag {
+            color: #63b3ed;
+        }
+        .reply-to {
+            color: #718096;
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding-left: 5px;
+            border-left: 2px solid #dee2e6;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        body.dark-mode .reply-to {
+            color: #999;
+            border-color: #555;
+        }
+        .reply-btn {
+            background-color: #f0f8fb;
+            color: #4299e1;
+            padding: 4px 8px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        body.dark-mode .reply-btn {
+            background-color: #2d3748;
+            color: #63b3ed;
+        }
+        .reply-btn:hover {
+            background-color: #e8f4f8;
+        }
+        body.dark-mode .reply-btn:hover {
+            background-color: #3a4656;
+        }
+        .hidden {
+            display: none;
+        }
+        .custom-setting {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            transition: background-color 0.3s;
+        }
+        body.dark-mode .custom-setting {
+            background-color: #333;
+        }
+        .custom-setting h3 {
+            font-size: 15px;
+            color: #4a5568;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        body.dark-mode .custom-setting h3 {
+            color: #b0b0b0;
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            padding: 8px 12px;
+            background-color: #4299e1;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        body.dark-mode .mode-toggle {
+            background-color: #3182ce;
+        }
+        .anonymous-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .anonymous-option input {
+            width: auto;
+            margin-top: 2px;
+        }
+        /* 新增：清空数据按钮样式 */
+        .clear-data-btn {
+            background-color: #e53e3e;
+            margin-left: 10px;
+        }
+        .clear-data-btn:hover {
+            background-color: #c53030;
+        }
+        body.dark-mode .clear-data-btn {
+            background-color: #c53030;
+        }
+        body.dark-mode .clear-data-btn:hover {
+            background-color: #a71d2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle" id="modeToggle">
+        <span id="modeIcon">🌙</span>
+        <span id="modeText">夜间模式</span>
+    </div>
+
+    <div class="container">
+        <!-- 发帖表单 -->
+        <div class="post-form">
+            <h2>发布帖子</h2>
+            <div class="anonymous-option">
+                <input type="checkbox" id="anonymousPost">
+                <label for="anonymousPost">匿名发帖（隐藏昵称，显示为"匿名用户"）</label>
+            </div>
+            <div class="form-group">
+                <label for="postTitle">帖子标题</label>
+                <input type="text" id="postTitle" placeholder="请输入帖子标题（必填）" required>
+            </div>
+            <div class="form-group" id="postAuthorGroup">
+                <label for="postAuthor">发帖人</label>
+                <input type="text" id="postAuthor" placeholder="请输入发帖人昵称" required>
+            </div>
+            <div class="form-group">
+                <label for="postContent">帖子内容</label>
+                <textarea id="postContent" placeholder="请输入帖子内容" required></textarea>
+            </div>
+            
+            <div class="custom-setting">
+                <h3>自定义设置</h3>
+                <div class="form-group">
+                    <label for="customPostTime">发帖时间（默认当前时间）</label>
+                    <input type="datetime-local" id="customPostTime">
+                </div>
+                <div class="anonymous-option">
+                    <input type="checkbox" id="unifiedIp">
+                    <label for="unifiedIp">所有帖子/回帖使用统一IP属地</label>
+                </div>
+                <div class="form-group">
+                    <label for="customPostIp">IP属地（默认随机，统一模式下生效）</label>
+                    <input type="text" id="customPostIp" placeholder="例如：江苏南京、福建厦门">
+                </div>
+            </div>
+            
+            <button id="publishPost">发布帖子</button>
+            <button id="clearAllData" class="clear-data-btn">清空本地数据</button>
+        </div>
+
+        <!-- 帖子展示区域 -->
+        <div id="postDisplay" class="post-card hidden">
+            <div class="post-title" id="postTitleDisplay"></div>
+            <div class="post-info" id="postMeta"></div>
+            <div class="post-content" id="postContentDisplay"></div>
+            <button id="showReplyForm">添加回帖</button>
+        </div>
+
+        <!-- 回帖表单 -->
+        <div id="replyForm" class="reply-form hidden">
+            <h2>发表回帖</h2>
+            <div class="anonymous-option">
+                <input type="checkbox" id="anonymousReply">
+                <label for="anonymousReply">匿名回帖（隐藏昵称，显示为"匿名用户"）</label>
+            </div>
+            <div id="replyToTip" class="reply-to hidden"></div>
+            <div class="form-group" id="replyAuthorGroup">
+                <label for="replyAuthor">回帖人</label>
+                <input type="text" id="replyAuthor" placeholder="请输入你的昵称" required>
+            </div>
+            <div class="form-group">
+                <label for="replyContent">回帖内容</label>
+                <textarea id="replyContent" placeholder="请输入回帖内容" required></textarea>
+            </div>
+            
+            <div class="custom-setting">
+                <h3>回帖自定义</h3>
+                <div class="form-group">
+                    <label for="customReplyTime">回帖时间（默认当前时间）</label>
+                    <input type="datetime-local" id="customReplyTime">
+                </div>
+                <div class="form-group">
+                    <label for="customReplyIp">独立IP属地（优先于统一模式，可选）</label>
+                    <input type="text" id="customReplyIp" placeholder="例如：江苏南京、福建厦门">
+                </div>
+            </div>
+            
+            <button id="submitReply">提交回帖</button>
+            <button id="cancelReply" class="reply-btn" style="margin-left: 8px;">取消回复</button>
+        </div>
+
+        <!-- 回帖列表 -->
+        <div id="replyList">
+            <h2>回帖区</h2>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let postAuthor = '';
+        let replyToTarget = null;
+        let unifiedIp = '';
+        // 本地存储键名
+        const STORAGE_KEY = 'forumData';
+        
+        // 获取DOM元素
+        const publishBtn = document.getElementById('publishPost');
+        const postDisplay = document.getElementById('postDisplay');
+        const postTitleDisplay = document.getElementById('postTitleDisplay');
+        const postMeta = document.getElementById('postMeta');
+        const postContentDisplay = document.getElementById('postContentDisplay');
+        const showReplyBtn = document.getElementById('showReplyForm');
+        const replyForm = document.getElementById('replyForm');
+        const submitReplyBtn = document.getElementById('submitReply');
+        const cancelReplyBtn = document.getElementById('cancelReply');
+        const replyList = document.getElementById('replyList');
+        const replyToTip = document.getElementById('replyToTip');
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const modeText = document.getElementById('modeText');
+        const anonymousPost = document.getElementById('anonymousPost');
+        const anonymousReply = document.getElementById('anonymousReply');
+        const postAuthorGroup = document.getElementById('postAuthorGroup');
+        const replyAuthorGroup = document.getElementById('replyAuthorGroup');
+        const unifiedIpCheckbox = document.getElementById('unifiedIp');
+        const customPostIp = document.getElementById('customPostIp');
+        const clearAllDataBtn = document.getElementById('clearAllData');
+        
+        // 随机IP池
+        const randomIpAreas = ['江苏南京', '福建厦门', '北京', '上海', '广东深圳', '浙江杭州', '四川成都'];
+        function getRandomIpArea() {
+            return randomIpAreas[Math.floor(Math.random() * randomIpAreas.length)];
+        }
+        
+        // 获取最终IP属地
+        function getFinalIp(independentIp = '') {
+            if (independentIp.trim()) return independentIp.trim();
+            if (unifiedIpCheckbox.checked && unifiedIp.trim()) return unifiedIp.trim();
+            return getRandomIpArea();
+        }
+        
+        // 格式化时间
+        function formatTime(timeInput) {
+            if (!timeInput) return new Date().toLocaleString();
+            const date = new Date(timeInput);
+            return date.toLocaleString();
+        }
+        
+        // 【核心功能】从本地存储读取数据
+        function loadDataFromStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {
+                post: null, // 主帖子数据
+                replies: [] // 回帖列表
+            };
+        }
+        
+        // 【核心功能】保存数据到本地存储
+        function saveDataToStorage(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+        
+        // 【核心功能】渲染本地存储的帖子和回帖
+        function renderStoredData() {
+            const { post, replies } = loadDataFromStorage();
+            
+            // 渲染主帖子
+            if (post) {
+                postTitleDisplay.textContent = post.title;
+                postMeta.innerHTML = `发帖人：${post.author} ${post.author === '匿名用户' ? '' : '<span class="author-tag">帖主</span>'} | 发布时间：${post.time} | IP属地：${post.ip}`;
+                postContentDisplay.textContent = post.content;
+                postDisplay.classList.remove('hidden');
+                postAuthor = post.author; // 恢复帖主信息
+                // 恢复统一IP设置
+                unifiedIpCheckbox.checked = post.unifiedIp;
+                unifiedIp = post.unifiedIpValue || '';
+                customPostIp.value = post.unifiedIpValue || '';
+            }
+            
+            // 渲染回帖列表
+            replies.forEach((reply, index) => {
+                const replyItem = document.createElement('div');
+                replyItem.className = 'reply-item';
+                replyItem.dataset.floor = index + 1; // 楼层从1开始
+                
+                // 回帖人
+                const replyAuthorEl = document.createElement('div');
+                replyAuthorEl.className = 'reply-author';
+                replyAuthorEl.textContent = reply.author;
+                if (reply.author === postAuthor && reply.author !== '匿名用户') {
+                    const tag = document.createElement('span');
+                    tag.className = 'author-tag';
+                    tag.textContent = '帖主';
+                    replyAuthorEl.appendChild(tag);
+                }
+                
+                // 回帖元信息
+                const replyMeta = document.createElement('div');
+                replyMeta.className = 'post-info';
+                replyMeta.textContent = `回帖时间：${reply.time} | IP属地：${reply.ip}`;
+                
+                // 回复目标
+                const replyToEl = document.createElement('div');
+                if (reply.replyTo) {
+                    replyToEl.className = 'reply-to';
+                    replyToEl.textContent = `回复 @${reply.replyTo.author}（${reply.replyTo.floor}楼）`;
+                }
+                
+                // 回帖内容
+                const replyContentEl = document.createElement('div');
+                replyContentEl.className = 'post-content';
+                replyContentEl.textContent = reply.content;
+                
+                // 楼层标识
+                const floorTag = document.createElement('div');
+                floorTag.className = 'floor-tag';
+                floorTag.textContent = `${index + 1}楼`;
+                
+                // 回复按钮
+                const replyBtn = document.createElement('button');
+                replyBtn.className = 'reply-btn';
+                replyBtn.textContent = '回复该层主';
+                replyBtn.addEventListener('click', () => {
+                    replyToTarget = {
+                        author: reply.author,
+                        floor: index + 1
+                    };
+                    replyToTip.textContent = `回复 @${reply.author}（${index + 1}楼）`;
+                    replyToTip.classList.remove('hidden');
+                    replyForm.classList.remove('hidden');
+                    replyForm.scrollIntoView({ behavior: 'smooth' });
+                });
+                
+                // 组装回帖
+                replyItem.appendChild(replyAuthorEl);
+                replyItem.appendChild(replyMeta);
+                if (reply.replyTo) replyItem.appendChild(replyToEl);
+                replyItem.appendChild(replyContentEl);
+                replyItem.appendChild(floorTag);
+                replyItem.appendChild(replyBtn);
+                
+                replyList.appendChild(replyItem);
+            });
+        }
+        
+        // 夜间模式切换
+        modeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            modeIcon.textContent = isDark ? '☀️' : '🌙';
+            modeText.textContent = isDark ? '日间模式' : '夜间模式';
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        });
+        
+        // 初始化夜间模式
+        window.addEventListener('load', () => {
+            // 加载夜间模式偏好
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                modeIcon.textContent = '☀️';
+                modeText.textContent = '日间模式';
+            }
+            // 加载本地存储的帖子和回帖
+            renderStoredData();
+        });
+        
+        // 匿名选项切换
+        anonymousPost.addEventListener('change', () => {
+            postAuthorGroup.style.display = anonymousPost.checked ? 'none' : 'block';
+            document.getElementById('postAuthor').required = !anonymousPost.checked;
+        });
+        
+        anonymousReply.addEventListener('change', () => {
+            replyAuthorGroup.style.display = anonymousReply.checked ? 'none' : 'block';
+            document.getElementById('replyAuthor').required = !anonymousReply.checked;
+        });
+        
+        // 统一IP开关切换
+        unifiedIpCheckbox.addEventListener('change', () => {
+            customPostIp.required = unifiedIpCheckbox.checked;
+            if (unifiedIpCheckbox.checked) {
+                unifiedIp = customPostIp.value.trim() || getRandomIpArea();
+                customPostIp.placeholder = '统一IP属地为必填项';
+            } else {
+                customPostIp.placeholder = '例如：江苏南京、福建福州';
+            }
+        });
+        
+        customPostIp.addEventListener('input', () => {
+            if (unifiedIpCheckbox.checked) {
+                unifiedIp = customPostIp.value.trim();
+            }
+        });
+        
+        // 发布帖子（保存到本地存储）
+        publishBtn.addEventListener('click', () => {
+            const title = document.getElementById('postTitle').value.trim();
+            const author = anonymousPost.checked ? '匿名用户' : document.getElementById('postAuthor').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+            const customTime = document.getElementById('customPostTime').value;
+            const customIp = document.getElementById('customPostIp').value.trim();
+            
+            if (!title || !content) {
+                alert('请填写完整的帖子信息（标题、内容均为必填）！');
+                return;
+            }
+            if (unifiedIpCheckbox.checked && !customIp) {
+                alert('统一IP模式下，请填写IP属地！');
+                return;
+            }
+            
+            // 构造帖子数据
+            const postData = {
+                title,
+                author,
+                content,
+                time: formatTime(customTime),
+                ip: getFinalIp(customIp),
+                unifiedIp: unifiedIpCheckbox.checked,
+                unifiedIpValue: customIp.trim()
+            };
+            
+            // 读取现有数据，更新并保存
+            const data = loadDataFromStorage();
+            data.post = postData; // 覆盖原有帖子（单帖子模式）
+            saveDataToStorage(data);
+            
+            // 刷新页面渲染
+            window.location.reload();
+        });
+        
+        // 提交回帖（保存到本地存储）
+        submitReplyBtn.addEventListener('click', () => {
+            const author = anonymousReply.checked ? '匿名用户' : document.getElementById('replyAuthor').value.trim();
+            const content = document.getElementById('replyContent').value.trim();
+            const customTime = document.getElementById('customReplyTime').value;
+            const customIp = document.getElementById('customReplyIp').value.trim();
+            
+            if (!content) {
+                alert('请填写回帖内容！');
+                return;
+            }
+            if (!anonymousReply.checked && !author) {
+                alert('请填写回帖人昵称！');
+                return;
+            }
+            const data = loadDataFromStorage();
+            if (!data.post) {
+                alert('请先发布主帖子！');
+                return;
+            }
+            
+            // 构造回帖数据
+            const replyData = {
+                author,
+                content,
+                time: formatTime(customTime),
+                ip: getFinalIp(customIp),
+                replyTo: replyToTarget || null // 回复目标（可选）
+            };
+            
+            // 添加到回帖列表并保存
+            data.replies.push(replyData);
+            saveDataToStorage(data);
+            
+            // 刷新页面渲染
+            window.location.reload();
+        });
+        
+        // 显示回帖表单
+        showReplyBtn.addEventListener('click', () => {
+            replyToTarget = null;
+            replyToTip.classList.add('hidden');
+            replyForm.classList.remove('hidden');
+        });
+        
+        // 取消回复
+        cancelReplyBtn.addEventListener('click', () => {
+            replyToTarget = null;
+            replyToTip.classList.add('hidden');
+            replyForm.classList.add('hidden');
+            document.getElementById('replyAuthor').value = '';
+            document.getElementById('replyContent').value = '';
+            document.getElementById('customReplyTime').value = '';
+            document.getElementById('customReplyIp').value = '';
+            anonymousReply.checked = false;
+            replyAuthorGroup.style.display = 'block';
+        });
+        
+        // 清空本地数据
+        clearAllDataBtn.addEventListener('click', () => {
+            if (confirm('确定要清空所有本地保存的帖子和回帖吗？此操作不可恢复！')) {
+                localStorage.removeItem(STORAGE_KEY);
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
+
